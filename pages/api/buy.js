@@ -22,7 +22,6 @@ export default async function handler(req, res) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.id;
 
-    // Get user
     const { data: user, error } = await supabase
       .from("users")
       .select("*")
@@ -34,14 +33,10 @@ export default async function handler(req, res) {
     if (user.balance < MOVIE_PRICE)
       return res.status(400).json({ error: "Insufficient balance" });
 
-    // Deduct balance
     const newBalance = user.balance - MOVIE_PRICE;
-    await supabase
-      .from("users")
-      .update({ balance: newBalance })
-      .eq("id", userId);
+    await supabase.from("users").update({ balance: newBalance }).eq("id", userId);
 
-    // Record purchase (optional)
+    // Optionally record purchase
     await supabase.from("purchases").insert({
       user_id: userId,
       movie_id: movieId,
