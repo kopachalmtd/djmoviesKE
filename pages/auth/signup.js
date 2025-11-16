@@ -5,36 +5,62 @@ export default function SignupPage() {
   const router = useRouter();
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
+  // If token exists → go to movies page
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      // If already logged in, redirect to movies
-      router.replace("/movies");
-    }
+    if (token) router.replace("/movies");
   }, [router]);
 
-  const handleSignup = async () => {
+  async function handleSignup() {
+    setLoading(true);
+
     const res = await fetch("/api/auth/signup", {
       method: "POST",
-      body: JSON.stringify({ phone, password }),
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, password }),
     });
+
     const data = await res.json();
+
     if (data.token) {
       localStorage.setItem("token", data.token);
-      router.push("/movies"); // redirect after signup
+      router.push("/movies"); // Go to movies page
     } else {
-      alert("Signup failed");
+      alert(data.error?.message || "Signup failed");
     }
-  };
+
+    setLoading(false);
+  }
 
   return (
-    <div>
-      <h1>Signup</h1>
-      <input placeholder="Phone" value={phone} onChange={e => setPhone(e.target.value)} />
-      <input placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} type="password" />
-      <button onClick={handleSignup}>Signup</button>
+    <div style={{ padding: 20 }}>
+      <h1>Create Account</h1>
+
+      <input
+        type="text"
+        placeholder="Phone"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        style={{ display: "block", marginBottom: 10, padding: 8 }}
+      />
+
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        style={{ display: "block", marginBottom: 10, padding: 8 }}
+      />
+
+      <button
+        onClick={handleSignup}
+        disabled={loading}
+        style={{ padding: "10px 20px", background: "blue", color: "white" }}
+      >
+        {loading ? "Creating account..." : "Sign Up"}
+      </button>
     </div>
   );
 }
