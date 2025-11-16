@@ -1,19 +1,18 @@
-A — User Flow (How the system works)
-
-User signs up / logs in
-
-User deposits money (manual M-Pesa, PayHero STK Push, etc.)
-
-System adds money to their balance (KES).
-
-On the website, user sees:
-
-🎞 Movie List (fetched from Telegram bot or your JSON)
-
-💰 Balance icon (e.g., “Balance: KES 50”)
-
-When user selects a movie:
-
-If balance ≥ 10 → Unlock movie, reduce balance by 10
-
-If balance < 10 → Show “Deposit to Continue”
+{
+  "name": "djmovieske",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "bcryptjs": "2.4.3",
+    "jsonwebtoken": "9.0.2",
+    "mongodb": "6.7.0",
+    "next": "14.2.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
