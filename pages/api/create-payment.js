@@ -11,22 +11,24 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Make STK Push request to PayHero API
+    const body = {
+      username: process.env.PAYHERO_USERNAME,
+      password: process.env.PAYHERO_PASSWORD,
+      channel: process.env.PAYHERO_CHANNEL_ID,
+      phone,
+      amount,
+      external_reference: `topup_${phone}_${Date.now()}`, // unique
+      callback_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payhero-callback`,
+    };
+
     const response = await fetch("https://payhero.co.ke/api/stkpush", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.PAYHERO_KEY}`
-      },
-      body: JSON.stringify({
-        phone,
-        amount,
-        external_reference: `topup_${phone}_${Date.now()}`, // unique
-        callback_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payhero-callback`
-      })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
     });
 
     const data = await response.json();
+
     if (data.success) {
       return res.json({ ok: true, data });
     } else {
