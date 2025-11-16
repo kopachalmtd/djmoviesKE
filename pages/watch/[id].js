@@ -125,32 +125,32 @@ export default function WatchPage() {
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
       {/* Sidebar */}
-      <div
-        style={{
-          width: 60,
-          background: "#111",
-          color: "#fff",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          paddingTop: 20,
-        }}
-      >
-        <button onClick={() => router.push("/movies")} style={{ marginBottom: 20 }}>
-          🏠
-        </button>
-        <button onClick={() => setShowPayment(true)} style={{ marginBottom: 20 }}>
-          💰
-        </button>
-        <button
-          onClick={() => {
-            localStorage.removeItem("token");
-            router.push("/auth/login");
-          }}
-        >
-          🚪
-        </button>
-      </div>
+<div
+  style={{
+    width: 60,
+    background: "#007BFF", // <-- change from "#111" to blue
+    color: "#fff",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    paddingTop: 20,
+  }}
+>
+  <button onClick={() => router.push("/movies")} style={{ marginBottom: 20 }}>
+    🏠
+  </button>
+  <button onClick={() => setShowPayment(true)} style={{ marginBottom: 20 }}>
+    💰
+  </button>
+  <button
+    onClick={() => {
+      localStorage.removeItem("token");
+      router.push("/auth/login");
+    }}
+  >
+    🚪
+  </button>
+</div>
 
       {/* Main content */}
       <div style={{ flex: 1, padding: 20 }}>
