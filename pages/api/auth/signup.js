@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { supabaseAdmin } from "../lib/supabase";
+import { supabaseAdmin } from "../../../lib/supabase";
 
 function normalizePhone(phone) {
   let p = phone.replace(/\s+/g, "");
