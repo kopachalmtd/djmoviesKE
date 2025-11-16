@@ -1,25 +1,36 @@
-// pages/movies/index.js
-import Link from "next/link";
-import movies from "../../data/movies";
-import Nav from "../../components/Nav";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
-export default function Movies() {
+export default function MoviesPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      // No token → first-time user → redirect to signup
+      router.replace("/auth/signup");
+    } else {
+      // Optional: validate token with backend
+      fetch("/api/auth/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.ok) {
+            // Invalid token → redirect to login
+            router.replace("/auth/login");
+          }
+        })
+        .catch(() => router.replace("/auth/login"));
+    }
+  }, [router]);
+
   return (
     <div>
-      <Nav />
-      <div style={{ padding: 20 }}>
-        <h1>Movies</h1>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 16 }}>
-          {movies.map(m => (
-            <div key={m.id} style={{ border: "1px solid #222", padding: 8, borderRadius: 6 }}>
-              <img src={m.poster} style={{ width: "100%", height: 280, objectFit: "cover", borderRadius: 6 }} />
-              <h3>{m.title}</h3>
-              <p>KES {m.price}</p>
-              <Link href={`/movies/${m.id}`}><a>View</a></Link>
-            </div>
-          ))}
-        </div>
-      </div>
+      <h1>Movies</h1>
+      {/* Only visible if user is authenticated */}
+      <p>Loading movies...</p>
     </div>
   );
 }
