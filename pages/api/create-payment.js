@@ -1,33 +1,39 @@
 // pages/api/create-payment.js
+import fetch from "node-fetch";
+
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ ok: false, error: "Method Not Allowed" });
-  const { amount, phone_number, userId } = req.body;
-  if (!amount || !phone_number || !userId) return res.status(400).json({ ok: false, error: "Missing fields" });
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const username = process.env.PAYHERO_USERNAME;
-  const password = process.env.PAYHERO_PASSWORD;
-  const channel_id = process.env.PAYHERO_CHANNEL_ID;
-  if (!username || !password || !channel_id) return res.status(500).json({ ok: false, error: "PayHero not configured" });
+  const { phone, amount } = req.body;
 
-  const basic = Buffer.from(`${username}:${password}`).toString("base64");
-  const external_reference = `topup_${userId}_${Date.now()}`;
+  if (!phone || amount < 5) {
+    return res.status(400).json({ error: "Phone required and minimum KES 5" });
+  }
 
   try {
-    const resp = await fetch("https://backend.payhero.co.ke/api/v2/payments", {
+    // Make STK Push request to PayHero API
+    const response = await fetch("https://payhero.co.ke/api/stkpush", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Basic ${basic}` },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.PAYHERO_KEY}`
+      },
       body: JSON.stringify({
-        amount: Number(amount),
-        phone_number,
-        channel_id: Number(channel_id),
-        provider: "m-pesa",
-        external_reference
+        phone,
+        amount,
+        external_reference: `topup_${phone}_${Date.now()}`, // unique
+        callback_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payhero-callback`
       })
     });
-    const data = await resp.json();
-    if (!resp.ok) return res.status(500).json({ ok: false, error: data });
-    return res.json({ ok: true, data, external_reference });
+
+    const data = await response.json();
+    if (data.success) {
+      return res.json({ ok: true, data });
+    } else {
+      return res.status(400).json({ ok: false, error: data.message || "Payment failed" });
+    }
   } catch (err) {
-    return res.status(500).json({ ok: false, error: err.message });
+    console.error(err);
+    return res.status(500).json({ ok: false, error: "Server error" });
   }
 }
