@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import movies from "../../data/movies";
 
-const MOVIE_PRICE = 10; // minimum 10 bob per movie
+const MOVIE_PRICE = 10;
 
 export default function WatchPage() {
   const router = useRouter();
@@ -35,6 +35,7 @@ export default function WatchPage() {
       const data = await res.json();
 
       if (!data.ok) {
+        localStorage.removeItem("token");
         router.replace("/auth/login");
         return;
       }
@@ -66,7 +67,6 @@ export default function WatchPage() {
   // ------------------------------
   const handleWatch = async () => {
     if (user.balance >= MOVIE_PRICE) {
-      // Deduct 10 bob and record purchase
       const res = await fetch("/api/buy", {
         method: "POST",
         headers: {
@@ -83,7 +83,6 @@ export default function WatchPage() {
         alert(data.error || "Error deducting balance");
       }
     } else {
-      // Show payment popup
       setShowPayment(true);
     }
   };
@@ -108,7 +107,6 @@ export default function WatchPage() {
       if (data.ok) {
         setPaymentStatus("Payment successful! Balance will update shortly.");
         setShowPayment(false);
-        // Optimistically update balance
         setUser((prev) => ({ ...prev, balance: prev.balance + amount }));
       } else {
         setPaymentStatus("Payment failed or canceled.");
@@ -125,35 +123,39 @@ export default function WatchPage() {
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
       {/* Sidebar */}
-<div
-  style={{
-    width: 60,
-    background: "#007BFF", // <-- change from "#111" to blue
-    color: "#fff",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    paddingTop: 20,
-  }}
->
-  <button onClick={() => router.push("/movies")} style={{ marginBottom: 20 }}>
-    🏠
-  </button>
-  <button onClick={() => setShowPayment(true)} style={{ marginBottom: 20 }}>
-    💰
-  </button>
-  <button
-    onClick={() => {
-      localStorage.removeItem("token");
-      router.push("/auth/login");
-    }}
-  >
-    🚪
-  </button>
-</div>
+      <div
+        style={{
+          width: 60,
+          background: "#007BFF", // Blue sidebar
+          color: "#fff",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          paddingTop: 20,
+        }}
+      >
+        <button onClick={() => router.push("/movies")} style={{ marginBottom: 20 }}>
+          🏠
+        </button>
+        <button onClick={() => setShowPayment(true)} style={{ marginBottom: 20 }}>
+          💰
+        </button>
+        <button
+          onClick={() => {
+            localStorage.removeItem("token");
+            router.push("/auth/login");
+          }}
+        >
+          🚪
+        </button>
+      </div>
 
       {/* Main content */}
       <div style={{ flex: 1, padding: 20 }}>
+        <div style={{ marginBottom: 20 }}>
+          <strong>Logged in as:</strong> {user.phone}
+        </div>
+
         <h1>{movie.title}</h1>
         <img src={movie.poster} width="200" alt={movie.title} />
         <p>Price: KES {MOVIE_PRICE}</p>
@@ -176,7 +178,14 @@ export default function WatchPage() {
               zIndex: 999,
             }}
           >
-            <div style={{ background: "#fff", padding: 20, borderRadius: 8, width: 300 }}>
+            <div
+              style={{
+                background: "#fff",
+                padding: 20,
+                borderRadius: 8,
+                width: 300,
+              }}
+            >
               <h2>Pay with PayHero</h2>
               <input
                 type="text"
