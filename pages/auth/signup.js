@@ -1,46 +1,40 @@
-// pages/watch/[id].js
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import Nav from "../../components/Nav";
 
-export default function WatchPage() {
+export default function SignupPage() {
   const router = useRouter();
-  const { id } = router.query;
-  const [ok, setOk] = useState(null);
-  const [stream, setStream] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
-    async function check() {
-      const token = localStorage.getItem("token");
-      if (!token) return setOk(false);
-      const res = await fetch("/api/auth/me", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token }) });
-      if (!res.ok) { setOk(false); return; }
-      setOk(true);
+    const token = localStorage.getItem("token");
+    if (token) {
+      // If already logged in, redirect to movies
+      router.replace("/movies");
     }
-    if (id) check();
-  }, [id]);
+  }, [router]);
 
-  useEffect(() => {
-    async function getLink() {
-      if (!id) return;
-      const r = await fetch(`/api/movies/getLink?id=${id}`);
-      const j = await r.json();
-      if (j.url) setStream(j.url);
+  const handleSignup = async () => {
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({ phone, password }),
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await res.json();
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+      router.push("/movies"); // redirect after signup
+    } else {
+      alert("Signup failed");
     }
-    if (id) getLink();
-  }, [id]);
-
-  if (ok === null) return <div style={{ padding: 20 }}>Checking authentication...</div>;
-  if (ok === false) return <div style={{ padding: 20 }}>You must <a href="/auth/login">login</a> to watch this movie.</div>;
-  if (!stream) return <div style={{ padding: 20 }}>Loading stream...</div>;
+  };
 
   return (
     <div>
-      <Nav />
-      <div style={{ padding: 20 }}>
-        <h1>Watching {id}</h1>
-        <video controls style={{ width: "100%", maxHeight: "70vh" }} src={stream} />
-      </div>
+      <h1>Signup</h1>
+      <input placeholder="Phone" value={phone} onChange={e => setPhone(e.target.value)} />
+      <input placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} type="password" />
+      <button onClick={handleSignup}>Signup</button>
     </div>
   );
 }
