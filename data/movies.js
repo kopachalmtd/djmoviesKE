@@ -1,8 +1,15 @@
-// data/movies.js
-// Each movie costs KES 10
 const movies = [
-  { id: "m1", title: "Movie One", price: 10, poster: "/poster1.jpg", tg_file_id: "FILE_ID_1" },
-  { id: "m2", title: "Movie Two", price: 10, poster: "/poster2.jpg", tg_file_id: "FILE_ID_2" }
+  {
+    id: "m1",
+    title: "Movie 1",
+    poster: "/poster1.jpg",
+    telegramFileId: "BAACAgQAAxkBAAIBrWfhXaAb46Mg0dGuXEKQ27Lqm445AAKADgACZmnoUKH1QfB4s-TWNgQ" // your Telegram file ID
+  },
+  {
+    id: "m2",
+    title: "Movie 2",
+    poster: "/poster2.jpg",
+    telegramFileId: "BAACAgQAAxkBAAIB3mfhaf5rWiqi9HzvzqdtydVtoesdAAJ8DgACZmnoUEwzbnnZQMf3NgQ"
+  },
 ];
-
 export default movies;
