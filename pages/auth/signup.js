@@ -7,28 +7,29 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // If token exists → go to movies page
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) router.replace("/movies");
-  }, [router]);
-
   async function handleSignup() {
     setLoading(true);
 
-    const res = await fetch("/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone, password }),
-    });
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, password }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (data.token) {
+      if (!res.ok) {
+        alert(data.error || "Signup failed");
+        setLoading(false);
+        return;
+      }
+
       localStorage.setItem("token", data.token);
-      router.push("/movies"); // Go to movies page
-    } else {
-      alert(data.error?.message || "Signup failed");
+      router.push("/movies");
+
+    } catch (err) {
+      alert("Network error");
     }
 
     setLoading(false);
